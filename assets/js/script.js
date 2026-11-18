@@ -1,6 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const env = import.meta.env || {};
+const SITE_PASSWORD_HASH = env.VITE_SITE_PASSWORD_HASH || "";
+const UNLOCK_KEY = "us-space-unlocked";
+try { sessionStorage.removeItem(UNLOCK_KEY); } catch (e) {}
+const PIN_BOXES = [...document.querySelectorAll(".pin-box")];
+function pinValue() { return PIN_BOXES.map(box => box.value).join(""); }
+function clearPin() { PIN_BOXES.forEach(box => { box.value = ""; }); PIN_BOXES[0].focus(); }
 const supabase = env.VITE_SUPABASE_URL && env.VITE_SUPABASE_ANON_KEY
   ? createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY)
   : null;
@@ -115,6 +121,11 @@ function fmtDate(t) {
   return new Date(t).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 }
 function notice(msg) { const n = $("notice"); n.textContent = msg; n.hidden = !msg; }
+async function sha256(text) {
+  const bytes = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
 function reloadPhotos() { loadPhotos().catch(e => notice("Couldn't load photos: " + (e.message || e))); }
 function reloadTasks() { loadTasks().catch(e => notice("Couldn't load notes: " + (e.message || e))); }
 function el(tag, props = {}, text) {
@@ -350,10 +361,67 @@ $("moodClear").onclick = async () => {
 $("selfNhi").onclick = () => setIdentity("a");
 $("selfDun").onclick = () => setIdentity("b");
 
-window.addEventListener("hashchange", route);
+let started = false;
+function startApp() {
+  if (started) return;
+  started = true;
+  window.addEventListener("hashchange", route);
+  route(); buildMoodButtons();
+  tick(); setInterval(tick, 1000);
+  reloadPhotos(); reloadTasks(); loadAbout(); loadMoods();
+}
+function showGateError(message) {
+  const error = $("gateError");
+  error.textContent = message;
+  error.hidden = false;
+}
+function unlock() {
+  $("gate").hidden = true;
+  $("gateError").hidden = true;
+  startApp();
+}
+PIN_BOXES.forEach((box, i) => {
+  box.addEventListener("input", () => {
+    box.value = box.value.replace(/\D/g, "").slice(-1);
+    $("gateError").hidden = true;
+    if (box.value && i < PIN_BOXES.length - 1) PIN_BOXES[i + 1].focus();
+  });
+  box.addEventListener("keydown", event => {
+    if (event.key === "Backspace" && !box.value && i > 0) {
+      event.preventDefault();
+      PIN_BOXES[i - 1].value = "";
+      PIN_BOXES[i - 1].focus();
+    }
+    if (event.key === "ArrowLeft" && i > 0) {
+      event.preventDefault();
+      PIN_BOXES[i - 1].focus();
+    }
+    if (event.key === "ArrowRight" && i < PIN_BOXES.length - 1) {
+      event.preventDefault();
+      PIN_BOXES[i + 1].focus();
+    }
+  });
+  box.addEventListener("paste", event => {
+    const text = (event.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "");
+    if (!text) return;
+    event.preventDefault();
+    text.slice(0, PIN_BOXES.length - i).split("").forEach((digit, offset) => {
+      PIN_BOXES[i + offset].value = digit;
+    });
+    PIN_BOXES[Math.min(i + text.length, PIN_BOXES.length - 1)].focus();
+  });
+});
+$("gateForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!SITE_PASSWORD_HASH) { showGateError("Password not configured."); return; }
+  const pass = pinValue();
+  if (pass.length !== PIN_BOXES.length) { showGateError("Enter 4 digits."); return; }
+  try {
+    if (await sha256(pass) === SITE_PASSWORD_HASH) unlock();
+    else { showGateError("Wrong password."); clearPin(); }
+  } catch (e) { showGateError("Could not check password."); }
+});
 setHello();
 $("selfNhi").classList.toggle("on", selfKey === "a");
 $("selfDun").classList.toggle("on", selfKey === "b");
-route(); buildMoodButtons();
-tick(); setInterval(tick, 1000);
-reloadPhotos(); reloadTasks(); loadAbout(); loadMoods();
+PIN_BOXES[0].focus();

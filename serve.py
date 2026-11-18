@@ -26,6 +26,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
+        super().end_headers()
+
     def do_GET(self):
         path = self.path.split("?", 1)[0]
         if path == "/assets/js/script.js":
@@ -33,6 +39,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             injected = {
                 "VITE_SUPABASE_URL": ENV.get("VITE_SUPABASE_URL", ""),
                 "VITE_SUPABASE_ANON_KEY": ENV.get("VITE_SUPABASE_ANON_KEY", ""),
+                "VITE_SITE_PASSWORD_HASH": ENV.get("VITE_SITE_PASSWORD_HASH", ""),
             }
             source = source.replace("import.meta.env", json.dumps(injected, ensure_ascii=False))
             body = source.encode("utf-8")
@@ -45,8 +52,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return super().do_GET()
 
 
+class Server(socketserver.TCPServer):
+    allow_reuse_address = True
+
+
 if __name__ == "__main__":
     port = int(ENV.get("PORT", "8000"))
-    with socketserver.TCPServer(("127.0.0.1", port), Handler) as httpd:
+    with Server(("127.0.0.1", port), Handler) as httpd:
         print("Serving at http://127.0.0.1:" + str(port))
         httpd.serve_forever()

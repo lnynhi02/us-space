@@ -1,31 +1,53 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="A quiet place for two.">
+<meta name="theme-color" content="#F2EEDD" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E2A21" media="(prefers-color-scheme: dark)">
 <title>Us — Our Space</title>
 <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500&family=Nunito:wght@400;600;800&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Nunito:wght@400;600;800&family=Patrick+Hand&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <form class="gate-card" id="gateForm">
+    <div class="logo">Us.</div>
+    <h1 id="gateTitle">Our Space</h1>
+    <p class="lead">Enter the password to open.</p>
+    <div class="pin" id="gatePin" role="group" aria-label="4-digit password">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 1">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 2">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 3">
+      <input class="pin-box" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Digit 4">
+    </div>
+    <button class="btn" type="submit">Open</button>
+    <p class="notice" id="gateError" role="alert" hidden>Wrong password.</p>
+  </form>
+</div>
 <header class="top"><div class="top-in">
   <a class="logo" href="#home">Us.</a>
-  <nav id="nav">
+  <nav id="nav" aria-label="Main">
     <a href="#home" data-page="home">Home</a>
     <a href="#about" data-page="about">About</a>
     <a href="#gallery" data-page="gallery">Gallery</a>
     <a href="#requests" data-page="requests">Note</a>
     <a href="#together" data-page="together">Together</a>
   </nav>
-  <div class="who" id="whoPicker">
+  <div class="who" id="whoPicker" role="group" aria-label="Who are you?">
     <button class="btn ghost" id="selfNhi" type="button">Nhi</button>
     <button class="btn ghost" id="selfDun" type="button">Dun</button>
   </div>
 </div></header>
 
 <div class="wrap">
-  <p class="notice" id="notice" hidden></p>
+  <p class="notice" id="notice" role="status" hidden></p>
 
   <section id="home">
     <div class="hero">
@@ -34,7 +56,7 @@
       <p class="lead">A quiet place for two. Photos, small promises, and every day we’ve shared.</p>
     </div>
     <div class="counter">
-      <div class="counter-n" data-days=""></div>
+      <div class="counter-n" data-days="">–</div>
       <div class="counter-l">days together</div>
     </div>
     <h2>Latest moments</h2>
@@ -56,14 +78,14 @@
     <div class="row">
       <input type="file" id="file" accept="image/*" multiple hidden>
       <button class="btn" id="pick" type="button">Add photo</button>
-      <span class="meta" id="upload-msg"></span>
+      <span class="meta" id="upload-msg" role="status"></span>
     </div>
     <div class="grid" id="photos"></div>
   </section>
 
   <section id="requests" hidden>
     <h2>Note</h2>
-    <input type="text" id="task-text" placeholder="A little note, e.g. “Please sleep early tonight”">
+    <input type="text" id="task-text" aria-label="Write a little note" placeholder="A little note, e.g. “Please sleep early tonight”">
     <div class="row"><button class="btn" id="task-add" type="button">Send Note</button></div>
     <div id="tasks"></div>
   </section>
@@ -71,7 +93,7 @@
   <section id="together" hidden>
     <h2>Together</h2>
     <div class="counter">
-      <div class="counter-n" data-days=""></div>
+      <div class="counter-n" data-days="">–</div>
       <div class="counter-l">days and counting</div>
     </div>
     <div class="stats">
@@ -80,13 +102,13 @@
       <div><b id="s-weeks">–</b><span class="meta">weeks</span></div>
     </div>
     <p class="meta" id="since-line"></p>
-    <h2>Today’s mood <button class="link-btn" id="moodClear" type="button" style="margin-left:8px;font-size:13px">clear</button></h2>
+    <h2>Today’s mood <button class="link-btn mood-clear" id="moodClear" type="button" aria-label="Clear today’s mood">clear</button></h2>
     <div class="row moods" id="mood-buttons"></div>
     <div id="mood-list" class="meta"></div>
   </section>
 
 </div>
-<footer class="foot">Made for <em>Us</em></footer>
+<footer class="foot">Made for Us</footer>
 
 <script type="module" src="assets/js/script.js"></script>
 </body>

@@ -1,3 +1,4 @@
+
 /* Sage and cream theme. Change the colors here. */
 :root {
   --bg: #F2EEDD;         /* cream page */
@@ -43,7 +44,7 @@ body {
   font: 16px/1.6 var(--sans);
   -webkit-text-size-adjust: 100%;
 }
-.wrap { max-width: 900px; width: 100%; margin: 0 auto; padding: 0 20px 40px; flex: 1; }
+.wrap { max-width: 900px; width: 100%; margin: 0 auto; padding: 0 20px 80px; flex: 1; }
 
 /* Header */
 .top {
@@ -164,7 +165,30 @@ input[type="text"], textarea {
 .empty { color: var(--mute); padding: 18px 0; grid-column: 1 / -1; transform: none !important; }
 .notice { background: var(--note); border-radius: 14px; padding: 12px 16px; margin-top: 16px; font-size: 14px; }
 .foot { margin-top: auto; padding: 0 20px 24px; text-align: center; font: 500 20px var(--hand); color: var(--mute); }
-.foot em { font-style: italic; color: var(--accent); }
+
+.gate {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center; padding: 20px;
+  background: var(--bg);
+}
+.gate-card {
+  width: min(100%, 360px); text-align: center;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 24px;
+  padding: 28px; box-shadow: 0 10px 30px rgba(46, 59, 46, .12);
+}
+.gate-card .logo { display: block; margin-bottom: 8px; }
+.gate-card h1 { font-size: 44px; margin: 0 0 10px; }
+.gate-card .lead { margin-bottom: 20px; }
+.pin { display: flex; justify-content: center; gap: 10px; }
+.pin-box {
+  width: 56px; height: 64px; text-align: center;
+  border: 2px solid var(--line); border-radius: 14px;
+  background: var(--bg); color: var(--ink);
+  font: 800 28px/1 var(--sans);
+}
+.pin-box:focus { border-color: var(--accent); outline: none; }
+.gate-card .btn { width: 100%; margin-top: 14px; }
+#gateError { margin-top: 14px; }
 
 @media (max-width: 520px) {
   nav a { padding: 6px 10px; font-size: 14px; }
@@ -175,3 +199,8 @@ input[type="text"], textarea {
   * { transition: none !important; }
   .grid > * { transform: none !important; }
 }
+/* Added: small polish */
+.mood-clear { margin-left: 8px; font-size: 13px; }
+.top { border-bottom: 1px solid var(--line); }
+nav a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); }
+.counter-n:empty::before { content: "–"; }
