@@ -107,7 +107,8 @@ const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
 const MOODS = ["😊", "🥰", "😴", "😟", "😤", "🤒"];
 const PAGES = ["home", "about", "gallery", "requests", "together"];
-let selfKey = localStorage.getItem("person") === "b" ? "b" : "a";
+let selfKey = null;
+localStorage.removeItem("person");
 
 function dateKey(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
 function fmtDate(t) {
@@ -122,14 +123,23 @@ function el(tag, props = {}, text) {
   if (text !== undefined) e.textContent = text; // textContent keeps typed text safe
   return e;
 }
-function displayName(key) { return key === "a" ? "Nhi" : "Dun"; }
+function displayName(key) {
+  if (key === "a") return "Nhi";
+  if (key === "b") return "Dun";
+  return "Someone";
+}
 function setHello() { $("hello").textContent = "Welcome"; }
+function requireIdentity() {
+  if (selfKey) return true;
+  notice("Choose Nhi or Dun first.");
+  return false;
+}
 function setIdentity(key) {
   selfKey = key;
-  localStorage.setItem("person", key);
   $("selfNhi").classList.toggle("on", key === "a");
   $("selfDun").classList.toggle("on", key === "b");
   setHello();
+  notice("");
   reloadPhotos(); reloadTasks(); loadMoods();
 }
 
@@ -180,7 +190,7 @@ function photoCard(m, canDelete) {
   const c = el("figcaption");
   c.appendChild(el("div", {}, (m.caption ? m.caption + " — " : "") + displayName(m.author)));
   c.appendChild(el("div", {}, fmtDate(m.at)));
-  if (canDelete && m.author === selfKey) {
+  if (canDelete && selfKey && m.author === selfKey) {
     const d = el("button", { className: "link-btn", type: "button" }, "delete");
     d.onclick = async () => {
       if (!confirm("Delete this photo?")) return;
@@ -217,6 +227,7 @@ async function loadTasks() {
     const chk = el("button", { className: "check", type: "button", title: "Mark done" }, t.done ? "✓" : "");
     chk.setAttribute("aria-pressed", String(!!t.done));
     chk.onclick = async () => {
+      if (!requireIdentity()) return;
       try {
         await store.update("tasks", t.id, { done: !t.done, doneBy: t.done ? "" : selfKey });
         reloadTasks();
@@ -226,7 +237,7 @@ async function loadTasks() {
     body.appendChild(el("div", { className: "task-text" }, t.text));
     body.appendChild(el("div", { className: "meta" },
       "From " + displayName(t.from) + " - " + fmtDate(t.at) + (t.done ? " · done by " + (t.doneBy ? displayName(t.doneBy) : "?") + " ✓" : "")));
-    if (t.from === selfKey) {
+    if (selfKey && t.from === selfKey) {
       const d = el("button", { className: "link-btn", type: "button" }, "remove");
       d.style.paddingLeft = "0";
       d.onclick = async () => {
@@ -278,7 +289,7 @@ async function loadAbout() {
 async function loadMoods() {
   const today = dateKey(new Date());
   const list = (await store.list("moods")).filter(m => m.day === today);
-  const mine = list.find(m => m.name === selfKey);
+  const mine = selfKey ? list.find(m => m.name === selfKey) : null;
   document.querySelectorAll("#mood-buttons button").forEach(b =>
     b.setAttribute("aria-pressed", String(!!mine && mine.mood === b.textContent)));
   const box = $("mood-list"); box.textContent = "";
@@ -288,6 +299,7 @@ function buildMoodButtons() {
   MOODS.forEach(m => {
     const b = el("button", { type: "button", title: "I feel " + m }, m);
     b.onclick = async () => {
+      if (!requireIdentity()) return;
       const today = dateKey(new Date());
       const existing = (await store.list("moods")).find(x => x.day === today && x.name === selfKey);
       if (existing) await store.update("moods", existing.id, { mood: m });
@@ -301,9 +313,11 @@ function buildMoodButtons() {
 /* ===================================================
    10) BUTTONS + START
    =================================================== */
-$("pick").onclick = () => { $("file").click(); };
+$("pick").onclick = () => { if (requireIdentity()) $("file").click(); };
 $("file").onchange = async function () {
   const files = [...this.files]; this.value = "";
+  if (!files.length) return;
+  if (!requireIdentity()) return;
   const caption = $("caption").value.trim();
   notice("");
   for (let i = 0; i < files.length; i++) {
@@ -318,7 +332,7 @@ $("file").onchange = async function () {
 };
 $("task-add").onclick = async () => {
   const text = $("task-text").value.trim();
-  if (!text) return;
+  if (!text || !requireIdentity()) return;
   try {
     await store.add("tasks", { text, from: selfKey, done: false, doneBy: "", at: Date.now() });
     $("task-text").value = "";
