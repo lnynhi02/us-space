@@ -14,7 +14,7 @@ function requireSupabase() {
   if (!supabase) throw new Error("Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.");
   return supabase;
 }
-const SHARED = ["moments", "tasks"];
+const SHARED = ["moments", "tasks", "hangouts"];
 
 /* ===================================================
    1) SETTINGS: change your together date here.
@@ -112,11 +112,16 @@ function shrinkImageBlob(file, maxSize, quality) {
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
 const MOODS = ["😊", "🥰", "😴", "😟", "😤", "🤒"];
+const MOOD_NAMES = ["happy", "loved", "tired", "worried", "annoyed", "sick"];
 const PAGES = ["home", "about", "gallery", "requests", "together"];
 let selfKey = null;
+let allMoments = [], hangouts = [], calDay = null;
+const calMonth = new Date(); calMonth.setDate(1);
 localStorage.removeItem("person");
 
 function dateKey(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+function dayDate(key) { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); }
+function momentDay(m) { return m.day || dateKey(new Date(m.at)); } // old photos have no day: use the upload date
 function fmtDate(t) {
   return new Date(t).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 }
@@ -188,7 +193,11 @@ function route() {
   let p = (location.hash || "#home").slice(1);
   if (!PAGES.includes(p)) p = "home";
   PAGES.forEach(id => { $(id).hidden = id !== p; });
-  document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.page === p));
+  document.querySelectorAll("#nav a").forEach(a => {
+    const on = a.dataset.page === p;
+    a.classList.toggle("on", on);
+    if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
   window.scrollTo(0, 0);
 }
 
@@ -200,7 +209,7 @@ function photoCard(m, canDelete) {
   f.appendChild(el("img", { src: m.url, alt: m.caption || "Photo", loading: "lazy" }));
   const c = el("figcaption");
   c.appendChild(el("div", {}, (m.caption ? m.caption + " — " : "") + displayName(m.author)));
-  c.appendChild(el("div", {}, fmtDate(m.at)));
+  c.appendChild(el("div", {}, fmtDate(m.day ? dayDate(m.day) : m.at)));
   if (canDelete && selfKey && m.author === selfKey) {
     const d = el("button", { className: "link-btn", type: "button" }, "delete");
     d.onclick = async () => {
@@ -215,24 +224,102 @@ function photoCard(m, canDelete) {
 }
 async function loadPhotos() {
   const list = await store.list("moments");
-  const all = $("photos"), latest = $("latest");
-  all.textContent = ""; latest.textContent = "";
+  allMoments = list; renderCalendar(); renderDay();
+  const all = $("photos");
+  all.textContent = "";
   if (!list.length) {
     all.appendChild(el("p", { className: "empty" }, "No photos yet. Add your first one."));
-    latest.appendChild(el("p", { className: "empty" }, "No photos yet. Add one in the Gallery."));
     return;
   }
   list.forEach(m => all.appendChild(photoCard(m, true)));
-  list.slice(0, 3).forEach(m => latest.appendChild(photoCard(m, false)));
+}
+
+/* ===================================================
+   6b) CALENDAR (ticks = days we hung out, marked by hand)
+   =================================================== */
+function reloadHangouts() { loadHangouts().catch(e => notice("Couldn't load calendar: " + (e.message || e))); }
+async function loadHangouts() { hangouts = await store.list("hangouts"); renderCalendar(); renderDay(); }
+function setGalleryTab(name) {
+  const photos = name !== "cal";
+  $("gtab-photos").classList.toggle("on", photos);
+  $("gtab-cal").classList.toggle("on", !photos);
+  $("gtab-photos").setAttribute("aria-selected", String(photos));
+  $("gtab-cal").setAttribute("aria-selected", String(!photos));
+  $("gpanel-photos").hidden = !photos;
+  $("gpanel-cal").hidden = photos;
+}
+function renderCalendar() {
+  const y = calMonth.getFullYear(), mo = calMonth.getMonth();
+  $("cal-title").textContent = calMonth.toLocaleDateString([], { month: "long", year: "numeric" });
+  const hang = new Set(hangouts.map(h => h.day));
+  const photoDays = new Set(allMoments.map(momentDay));
+  const offset = (new Date(y, mo, 1).getDay() + 6) % 7; // Monday first
+  const n = new Date(y, mo + 1, 0).getDate();
+  const today = dateKey(new Date());
+  const grid = $("cal"); grid.textContent = "";
+  for (let i = 0; i < offset; i++) grid.appendChild(el("span"));
+  let count = 0;
+  for (let d = 1; d <= n; d++) {
+    const key = y + "-" + pad(mo + 1) + "-" + pad(d);
+    const on = hang.has(key); if (on) count++;
+    const b = el("button", { type: "button", className: "cal-day" + (on ? " hang" : "") + (key === today ? " today" : "") + (key === calDay ? " sel" : "") });
+    b.appendChild(el("span", {}, String(d)));
+    if (on) b.appendChild(el("span", { className: "cal-heart" }, "♥"));
+    else if (photoDays.has(key)) b.appendChild(el("span", { className: "cal-dot" }));
+    b.setAttribute("aria-pressed", String(key === calDay));
+    b.setAttribute("aria-label", dayDate(key).toLocaleDateString([], { month: "long", day: "numeric" }) + (on ? ", we hung out" : "") + (photoDays.has(key) ? ", has photos" : ""));
+    b.onclick = () => { calDay = key; renderCalendar(); renderDay(); };
+    grid.appendChild(b);
+  }
+  $("cal-count").textContent = count ? count + (count === 1 ? " day" : " days") + " together this month ♥" : "No hangout days marked this month.";
+}
+function renderDay() {
+  const box = $("cal-day"); box.textContent = "";
+  if (!calDay) return;
+  box.appendChild(el("h3", { className: "cal-day-title" }, dayDate(calDay).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" })));
+  const h = hangouts.find(x => x.day === calDay);
+  const row = el("div", { className: "row" });
+  const mark = el("button", { className: h ? "btn ghost" : "btn", type: "button" }, h ? "♥ We hung out (tap to undo)" : "♥ Mark as hangout day");
+  mark.onclick = async () => {
+    if (!requireIdentity()) return;
+    try {
+      if (h) await store.remove("hangouts", h.id);
+      else await store.add("hangouts", { day: calDay, by: selfKey, at: Date.now() });
+      reloadHangouts();
+    } catch (e) { notice(e.message || "Couldn't update the calendar."); }
+  };
+  const add = el("button", { className: "btn ghost", type: "button" }, "Add photos for this day");
+  add.onclick = () => { $("photo-day").value = calDay; setGalleryTab("photos"); $("caption").focus(); };
+  row.append(mark, add);
+  box.appendChild(row);
+  const list = allMoments.filter(m => momentDay(m) === calDay);
+  const grid = el("div", { className: "grid" });
+  if (!list.length) grid.appendChild(el("p", { className: "empty" }, "No photos for this day yet."));
+  list.forEach(m => grid.appendChild(photoCard(m, true)));
+  box.appendChild(grid);
 }
 
 /* ===================================================
    7) NOTES
    =================================================== */
+const noteKind = t => (t.kind === "message" ? "message" : "todo"); // old notes have no kind: they are to-dos
+function setNoteTab(name) {
+  const todo = name !== "message";
+  $("tab-todo").classList.toggle("on", todo);
+  $("tab-msg").classList.toggle("on", !todo);
+  $("tab-todo").setAttribute("aria-selected", String(todo));
+  $("tab-msg").setAttribute("aria-selected", String(!todo));
+  $("panel-todo").hidden = !todo;
+  $("panel-msg").hidden = todo;
+}
 async function loadTasks() {
-  const list = (await store.list("tasks")).sort((a, b) => (a.done - b.done) || (b.at - a.at));
+  const all = await store.list("tasks");
+  renderTodos(all.filter(t => noteKind(t) === "todo").sort((a, b) => (!!a.done - !!b.done) || (b.at - a.at)));
+  renderMessages(all.filter(t => noteKind(t) === "message").sort((a, b) => b.at - a.at));
+}
+function renderTodos(list) {
   const box = $("tasks"); box.textContent = "";
-  if (!list.length) { box.appendChild(el("p", { className: "empty" }, "No notes yet.")); return; }
+  if (!list.length) { box.appendChild(el("p", { className: "empty" }, "No to-dos yet.")); return; }
   list.forEach(t => {
     const row = el("div", { className: "task" + (t.done ? " done" : "") });
     const chk = el("button", { className: "check", type: "button", title: "Mark done" }, t.done ? "✓" : "");
@@ -242,23 +329,57 @@ async function loadTasks() {
       try {
         await store.update("tasks", t.id, { done: !t.done, doneBy: t.done ? "" : selfKey });
         reloadTasks();
-      } catch (e) { notice(e.message || "Couldn't update note."); }
+      } catch (e) { notice(e.message || "Couldn't update to-do."); }
     };
     const body = el("div", { className: "task-body" });
     body.appendChild(el("div", { className: "task-text" }, t.text));
     body.appendChild(el("div", { className: "meta" },
-      "From " + displayName(t.from) + " - " + fmtDate(t.at) + (t.done ? " · done by " + (t.doneBy ? displayName(t.doneBy) : "?") + " ✓" : "")));
+      "From " + displayName(t.from) + " - " + fmtDate(t.at) + (t.done ? " ✓" : "")));
     if (selfKey && t.from === selfKey) {
       const d = el("button", { className: "link-btn", type: "button" }, "remove");
       d.style.paddingLeft = "0";
       d.onclick = async () => {
         try { await store.remove("tasks", t.id); reloadTasks(); }
-        catch (e) { notice(e.message || "Couldn't remove note."); }
+        catch (e) { notice(e.message || "Couldn't remove to-do."); }
       };
       body.appendChild(d);
     }
     row.append(chk, body);
     box.appendChild(row);
+  });
+}
+// Messages reuse done/doneBy as the heart: "done" = the other person tapped the heart.
+function renderMessages(list) {
+  const box = $("messages"); box.textContent = "";
+  if (!list.length) { box.appendChild(el("p", { className: "empty" }, "No messages yet. Write the first one.")); return; }
+  list.forEach(m => {
+    const card = el("div", { className: "msg" });
+    card.appendChild(el("div", { className: "msg-text" }, m.text));
+    const foot = el("div", { className: "msg-foot" });
+    foot.appendChild(el("span", { className: "meta" }, displayName(m.from) + " - " + fmtDate(m.at)));
+    const mine = !!selfKey && m.from === selfKey;
+    if (selfKey && !mine) {
+      const h = el("button", { className: "heart" + (m.done ? " on" : ""), type: "button", title: m.done ? "Remove heart" : "I read this" }, "♥");
+      h.setAttribute("aria-pressed", String(!!m.done));
+      h.setAttribute("aria-label", "I read this");
+      h.onclick = async () => {
+        try { await store.update("tasks", m.id, { done: !m.done, doneBy: m.done ? "" : selfKey }); reloadTasks(); }
+        catch (e) { notice(e.message || "Couldn't update message."); }
+      };
+      foot.appendChild(h);
+    } else if (m.done) {
+      foot.appendChild(el("span", { className: "meta" }, "♥ " + (m.doneBy ? displayName(m.doneBy) : "read")));
+    }
+    if (mine) {
+      const d = el("button", { className: "link-btn", type: "button" }, "remove");
+      d.onclick = async () => {
+        try { await store.remove("tasks", m.id); reloadTasks(); }
+        catch (e) { notice(e.message || "Couldn't remove message."); }
+      };
+      foot.appendChild(d);
+    }
+    card.appendChild(foot);
+    box.appendChild(card);
   });
 }
 
@@ -309,6 +430,7 @@ async function loadMoods() {
 function buildMoodButtons() {
   MOODS.forEach(m => {
     const b = el("button", { type: "button", title: "I feel " + m }, m);
+    b.setAttribute("aria-label", "I feel " + (MOOD_NAMES[MOODS.indexOf(m)] || "something"));
     b.onclick = async () => {
       if (!requireIdentity()) return;
       const today = dateKey(new Date());
@@ -324,33 +446,107 @@ function buildMoodButtons() {
 /* ===================================================
    10) BUTTONS + START
    =================================================== */
+let queuedPhotos = [];
+let uploading = false;
+const photoKey = f => f.name + ":" + f.size + ":" + f.lastModified;
+function renderQueue() {
+  const box = $("queue"); box.textContent = "";
+  $("upload").disabled = uploading || !queuedPhotos.length;
+  $("pick").disabled = uploading;
+  queuedPhotos.forEach((item, index) => {
+    const card = el("div", { className: "queue-item" });
+    const img = el("img", { src: item.url, alt: item.file.name, loading: "lazy" });
+    const name = el("div", { className: "meta queue-name" }, item.file.name);
+    const remove = el("button", { className: "link-btn", type: "button" }, "remove");
+    remove.onclick = () => {
+      URL.revokeObjectURL(item.url);
+      queuedPhotos.splice(index, 1);
+      renderQueue();
+      $("upload-msg").textContent = queuedPhotos.length ? queuedPhotos.length + " photo(s) ready to upload." : "";
+    };
+    card.append(img, name, remove);
+    box.appendChild(card);
+  });
+}
 $("pick").onclick = () => { if (requireIdentity()) $("file").click(); };
-$("file").onchange = async function () {
-  const files = [...this.files]; this.value = "";
-  if (!files.length) return;
+$("file").onchange = function () {
+  const files = [...this.files].filter(f => f.type.startsWith("image/")); this.value = "";
+  if (!files.length) { notice("Please choose image files."); return; }
+  if (!requireIdentity()) return;
+  notice("");
+  const seen = new Set(queuedPhotos.map(x => photoKey(x.file)));
+  files.forEach(file => {
+    const key = photoKey(file);
+    if (seen.has(key)) return;
+    seen.add(key);
+    queuedPhotos.push({ file, url: URL.createObjectURL(file) });
+  });
+  renderQueue();
+  $("upload-msg").textContent = queuedPhotos.length + " photo(s) ready to upload.";
+};
+$("upload").onclick = async () => {
+  if (!queuedPhotos.length || uploading) return;
   if (!requireIdentity()) return;
   const caption = $("caption").value.trim();
-  notice("");
-  for (let i = 0; i < files.length; i++) {
-    $("upload-msg").textContent = "Uploading " + (i + 1) + " of " + files.length + "…";
+  const day = $("photo-day").value || dateKey(new Date());
+  const batch = [...queuedPhotos];
+  uploading = true; notice(""); renderQueue();
+  let uploaded = 0;
+  for (let i = 0; i < batch.length; i++) {
+    const item = batch[i];
+    $("upload-msg").textContent = "Uploading " + (i + 1) + " of " + batch.length + "…";
     try {
-      const photo = await store.uploadPhoto(files[i]);
-      await store.add("moments", { author: selfKey, caption: i === 0 ? caption : "", url: photo.url, path: photo.path, at: Date.now() });
+      const photo = await store.uploadPhoto(item.file);
+      await store.add("moments", {
+        author: selfKey,
+        caption: uploaded === 0 ? caption : "",
+        url: photo.url,
+        path: photo.path,
+        day,
+        at: Date.now()
+      });
+      const index = queuedPhotos.indexOf(item);
+      if (index > -1) { URL.revokeObjectURL(item.url); queuedPhotos.splice(index, 1); }
+      uploaded++;
+      renderQueue();
     } catch (e) { notice(e.message || "Upload failed."); }
   }
-  $("caption").value = ""; $("upload-msg").textContent = "";
-  reloadPhotos();
+  uploading = false; renderQueue();
+  if (uploaded) {
+    $("caption").value = "";
+    $("photo-day").value = dateKey(new Date());
+    reloadPhotos();
+  }
+  $("upload-msg").textContent = queuedPhotos.length
+    ? uploaded + " uploaded, " + queuedPhotos.length + " failed. Try again or remove them."
+    : (uploaded ? "Uploaded " + uploaded + " photo(s)." : "Nothing uploaded.");
 };
 $("task-add").onclick = async () => {
   const text = $("task-text").value.trim();
   if (!text || !requireIdentity()) return;
   try {
-    await store.add("tasks", { text, from: selfKey, done: false, doneBy: "", at: Date.now() });
+    await store.add("tasks", { text, kind: "todo", from: selfKey, done: false, doneBy: "", at: Date.now() });
     $("task-text").value = "";
     reloadTasks();
-  } catch (e) { notice(e.message || "Couldn't send note."); }
+  } catch (e) { notice(e.message || "Couldn't add to-do."); }
 };
 $("task-text").addEventListener("keydown", e => { if (e.key === "Enter") $("task-add").click(); });
+$("msg-add").onclick = async () => {
+  const text = $("msg-text").value.trim();
+  if (!text || !requireIdentity()) return;
+  try {
+    await store.add("tasks", { text, kind: "message", from: selfKey, done: false, doneBy: "", at: Date.now() });
+    $("msg-text").value = "";
+    reloadTasks();
+  } catch (e) { notice(e.message || "Couldn't send message."); }
+};
+$("msg-text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("msg-add").click(); });
+$("gtab-photos").onclick = () => setGalleryTab("photos");
+$("gtab-cal").onclick = () => setGalleryTab("cal");
+$("cal-prev").onclick = () => { calMonth.setMonth(calMonth.getMonth() - 1); renderCalendar(); };
+$("cal-next").onclick = () => { calMonth.setMonth(calMonth.getMonth() + 1); renderCalendar(); };
+$("tab-todo").onclick = () => setNoteTab("todo");
+$("tab-msg").onclick = () => setNoteTab("message");
 $("moodClear").onclick = async () => {
   const today = dateKey(new Date());
   const list = await store.list("moods");
@@ -366,9 +562,10 @@ function startApp() {
   if (started) return;
   started = true;
   window.addEventListener("hashchange", route);
+  calDay = dateKey(new Date()); $("photo-day").value = calDay;
   route(); buildMoodButtons();
   tick(); setInterval(tick, 1000);
-  reloadPhotos(); reloadTasks(); loadAbout(); loadMoods();
+  reloadPhotos(); reloadTasks(); reloadHangouts(); loadAbout(); loadMoods();
 }
 function showGateError(message) {
   const error = $("gateError");
