@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,7 +63,7 @@
 </svg>
       <p class="hello" id="hello">Welcome</p>
       <h1 id="title">Our Space</h1>
-      <p class="lead">A quiet place for two. Photos, small promises, and every day we’ve shared.</p>
+      <p class="lead">A quiet place for us. Photos, small promises, and every day we’ve shared.</p>
     </div>
     <div class="counter">
       <div class="counter-n" data-days="">–</div>
@@ -90,7 +91,7 @@
         <span>Which day was this?</span>
         <input type="date" id="photo-day">
       </label>
-      <label class="field" style="margin-top:12px">
+      <label class="field">
         <span>Say something about this moment</span>
         <textarea id="caption" rows="2" placeholder="Say something about this moment…"></textarea>
       </label>
@@ -146,6 +147,10 @@
       <div><b id="s-weeks">–</b><span class="meta">weeks</span></div>
     </div>
     <p class="meta" id="since-line"></p>
+    <figure class="tree-card">
+      <svg id="tree" viewBox="0 0 300 260" role="img" aria-labelledby="tree-cap"></svg>
+      <figcaption id="tree-cap" class="tree-cap"></figcaption>
+    </figure>
   </section>
 
 </div>
@@ -153,5 +158,6 @@
 
 <script type="module" src="assets/js/script.js"></script>
 <script src="assets/js/motion.js" defer></script>
+<script src="assets/js/tree.js?v=2" defer></script>
 </body>
 </html>
