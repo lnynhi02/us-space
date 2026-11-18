@@ -24,9 +24,10 @@ const START_DATE = "2026-10-23"; // format: YYYY-MM-DD
 
 /* ===================================================
    2) STORAGE LAYER
-   moments + tasks are shared via Supabase. moods and docs
-   (about/us) stay in localStorage on this browser.
+   moments, tasks and docs (about/us) are shared via Supabase.
+   moods stay in localStorage on this browser.
    =================================================== */
+const DOC_TAG = "__doc__";
 const store = {
   _read(key, fallback) {
     try { const v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; }
@@ -75,8 +76,44 @@ const store = {
     const { error } = await requireSupabase().from(collection).delete().eq("id", id);
     if (error) throw error;
   },
-  async getDoc(key) { return this._read("doc:" + key, {}); },
-  async setDoc(key, value) { this._write("doc:" + key, value); },
+  async getDoc(key) {
+    const cache = this._read("doc:" + key, {});
+    try {
+      const prefix = DOC_TAG + ":" + key + ":";
+      const { data, error } = await requireSupabase().from("tasks")
+        .select("id,text").eq("kind", "doc").like("text", prefix + "%");
+      if (error) throw error;
+      if (data && data.length) {
+        const value = JSON.parse(String(data[0].text).slice(prefix.length));
+        if (value && typeof value === "object") {
+          this._write("doc:" + key, value);
+          return value;
+        }
+      }
+      if (cache && Object.keys(cache).length) await this.setDoc(key, cache);
+      return cache;
+    } catch (e) {
+      return cache;
+    }
+  },
+  async setDoc(key, value) {
+    this._write("doc:" + key, value);
+    const prefix = DOC_TAG + ":" + key + ":";
+    const text = prefix + JSON.stringify(value);
+    const sb = requireSupabase();
+    const { data, error } = await sb.from("tasks")
+      .select("id").eq("kind", "doc").like("text", prefix + "%");
+    if (error) throw error;
+    if (data && data.length) {
+      const { error: updateError } = await sb.from("tasks")
+        .update({ text, at: Date.now() }).eq("id", data[0].id);
+      if (updateError) throw updateError;
+    } else {
+      const { error: insertError } = await sb.from("tasks")
+        .insert({ kind: "doc", text, from: "", done: false, doneBy: "", at: Date.now() });
+      if (insertError) throw insertError;
+    }
+  },
   async uploadPhoto(file) {
     const blob = await shrinkImageBlob(file, 900, 0.8);
     const id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2));
@@ -302,7 +339,7 @@ function renderDay() {
 /* ===================================================
    7) NOTES
    =================================================== */
-const noteKind = t => (t.kind === "message" ? "message" : "todo"); // old notes have no kind: they are to-dos
+const noteKind = t => (t.kind === "message" ? "message" : t.kind === "doc" ? "doc" : "todo"); // old notes have no kind: they are to-dos
 function setNoteTab(name) {
   const todo = name !== "message";
   $("tab-todo").classList.toggle("on", todo);
@@ -402,8 +439,14 @@ async function loadAbout() {
       const save = el("button", { className: "btn", type: "button" }, "Save");
       save.onclick = async () => {
         about[key] = { name: name.value.trim(), bio: bio.value.trim() };
-        await store.setDoc("about", about);
-        loadAbout();
+        try {
+          await store.setDoc("about", about);
+          notice("");
+          loadAbout();
+        } catch (e) {
+          notice("Saved on this device only: " + (e.message || e));
+          loadAbout();
+        }
       };
       const row = el("div", { className: "row" }); row.appendChild(save);
       card.append(name, bio, row);
