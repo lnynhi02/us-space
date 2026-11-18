@@ -3,304 +3,89 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Us — Our Little World</title>
-<style>
-:root{--bg:#fff;--ink:#111;--mute:#777;--line:#ddd;--soft:#f3f3f3;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c0c0c;--ink:#f2f2f2;--mute:#8d8d8d;--line:#2a2a2a;--soft:#171717;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0c0c0c;--ink:#f2f2f2;--mute:#8d8d8d;--line:#2a2a2a;--soft:#171717;color-scheme:dark}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Helvetica Neue",Helvetica,Arial,sans-serif}
-.wrap{max-width:900px;margin:0 auto;padding:0 20px 80px}
-header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;border-bottom:1px solid var(--line)}
-header .in{max-width:900px;margin:0 auto;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.logo{font:italic 400 20px Georgia,"Times New Roman",serif;letter-spacing:.5px}
-nav{display:flex;gap:18px;flex-wrap:wrap}
-nav a{color:var(--mute);text-decoration:none;font-size:13px;letter-spacing:2px;text-transform:uppercase;padding-bottom:3px;border-bottom:1px solid transparent}
-nav a.on,nav a:hover{color:var(--ink);border-bottom-color:var(--ink)}
-.hero{padding:70px 0 40px}
-.eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--mute)}
-h1{font:400 clamp(48px,12vw,110px)/1 Georgia,"Times New Roman",serif;margin:12px 0 18px;letter-spacing:-2px}
-h2{font:400 32px Georgia,serif;margin:50px 0 16px;letter-spacing:-.5px}
-.lead{font-size:18px;color:var(--mute);max-width:560px}
-.count{border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);margin:40px 0;padding:28px 0;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
-.count .n{font:400 clamp(64px,16vw,130px)/1 Georgia,serif;letter-spacing:-3px}
-.count .l{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--mute)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.ph{margin:0}
-.ph img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:var(--soft)}
-.ph figcaption{font-size:13px;color:var(--mute);padding:6px 0}
-.ph button{background:none;border:0;color:var(--mute);cursor:pointer;font-size:12px;text-decoration:underline;padding:0 0 0 6px}
-input[type=text],input[type=date],textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:0;background:var(--bg);color:var(--ink);font:inherit}
-.btn{background:var(--ink);color:var(--bg);border:1px solid var(--ink);padding:11px 20px;font:inherit;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:0}
-.btn.ghost{background:none;color:var(--ink)}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
-.task{display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--line)}
-.chk{width:26px;height:26px;border:1.5px solid var(--ink);background:none;color:var(--bg);cursor:pointer;flex:none;font-size:15px;line-height:1;border-radius:0}
-.task.done .chk{background:var(--ink)}
-.task.done .t{text-decoration:line-through;color:var(--mute)}
-.meta{color:var(--mute);font-size:13px}
-.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:30px}
-.person{border-top:1px solid var(--ink);padding-top:14px}
-.person h3{font:400 28px Georgia,serif;margin:0 0 8px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0;border:1px solid var(--line)}
-.stats div{padding:22px 16px;border-right:1px solid var(--line);text-align:center}
-.stats b{display:block;font:400 40px Georgia,serif}
-.moods button{font-size:26px;background:var(--soft);border:1px solid var(--line);padding:6px 12px;cursor:pointer;border-radius:0}
-.empty{color:var(--mute);padding:20px 0}
-.hidden{display:none}
-#warn{border:1px solid var(--ink);padding:12px;margin-top:16px;font-size:14px}
-footer{margin-top:60px;border-top:1px solid var(--line);padding-top:16px;color:var(--mute);font-size:12px;letter-spacing:2px;text-transform:uppercase}
-</style>
+<title>Us — Our Space</title>
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-<header><div class="in">
-  <div class="logo">Us.</div>
+<header class="top"><div class="top-in">
+  <a class="logo" href="#home">Us.</a>
   <nav id="nav">
-    <a href="#home" data-p="home">Home</a>
-    <a href="#about" data-p="about">About</a>
-    <a href="#gallery" data-p="gallery">Gallery</a>
-    <a href="#requests" data-p="requests">Requests</a>
-    <a href="#together" data-p="together">Together</a>
+    <a href="#home" data-page="home">Home</a>
+    <a href="#about" data-page="about">About</a>
+    <a href="#gallery" data-page="gallery">Gallery</a>
+    <a href="#requests" data-page="requests">Note</a>
+    <a href="#together" data-page="together">Together</a>
   </nav>
+  <div class="who" id="whoPicker">
+    <button class="btn ghost" id="selfNhi" type="button">Nhi</button>
+    <button class="btn ghost" id="selfDun" type="button">Dun</button>
+  </div>
 </div></header>
 
 <div class="wrap">
-  <div id="warn" class="hidden"></div>
+  <p class="notice" id="notice" hidden></p>
 
   <section id="home">
     <div class="hero">
-      <div class="eyebrow" id="who">Welcome</div>
-      <h1 id="title">Our Little World</h1>
+      <p class="hello" id="hello">Welcome</p>
+      <h1 id="title">Our Space</h1>
       <p class="lead">A quiet place for two. Photos, small promises, and every day we’ve shared.</p>
     </div>
-    <div class="count">
-      <div class="n" id="days1">–</div>
-      <div class="l">days together</div>
+    <div class="counter">
+      <div class="counter-n" data-days=""></div>
+      <div class="counter-l">days together</div>
     </div>
     <h2>Latest moments</h2>
-    <div class="grid" id="latest"><div class="empty">Loading…</div></div>
+    <div class="grid" id="latest"><p class="empty">Loading…</p></div>
   </section>
 
-  <section id="about" class="hidden">
-    <h2 style="margin-top:50px">About us</h2>
+  <section id="about" hidden>
+    <h2>About us</h2>
     <p class="lead">Two people, one little world.</p>
-    <div class="people" style="margin-top:30px" id="people"></div>
+    <div class="people" id="people"></div>
   </section>
 
-  <section id="gallery" class="hidden">
-    <h2 style="margin-top:50px">Gallery</h2>
-    <textarea id="cap" rows="2" placeholder="Say something about this moment…"></textarea>
+  <section id="gallery" hidden>
+    <h2>Gallery</h2>
+    <label class="field">
+      <span>Say something about this moment</span>
+      <textarea id="caption" rows="2" placeholder="Say something about this moment…"></textarea>
+    </label>
     <div class="row">
-      <input type="file" id="file" accept="image/*" multiple class="hidden">
-      <button class="btn" id="pick">Add photo</button>
-      <span class="meta" id="upmsg"></span>
+      <input type="file" id="file" accept="image/*" multiple hidden>
+      <button class="btn" id="pick" type="button">Add photo</button>
+      <span class="meta" id="upload-msg"></span>
     </div>
-    <div class="grid" id="mlist" style="margin-top:30px"></div>
+    <div class="grid" id="photos"></div>
   </section>
 
-  <section id="requests" class="hidden">
-    <h2 style="margin-top:50px">Requests</h2>
-    <input type="text" id="ttext" placeholder="A little request, e.g. “Please sleep early tonight”">
-    <div class="row"><button class="btn" id="tadd">Send request</button></div>
-    <div id="tlist" style="margin-top:24px"></div>
+  <section id="requests" hidden>
+    <h2>Note</h2>
+    <input type="text" id="task-text" placeholder="A little note, e.g. “Please sleep early tonight”">
+    <div class="row"><button class="btn" id="task-add" type="button">Send Note</button></div>
+    <div id="tasks"></div>
   </section>
 
-  <section id="together" class="hidden">
-    <h2 style="margin-top:50px">Together</h2>
-    <div class="count" style="margin-top:20px">
-      <div class="n" id="days2">–</div>
-      <div class="l">days and counting</div>
+  <section id="together" hidden>
+    <h2>Together</h2>
+    <div class="counter">
+      <div class="counter-n" data-days=""></div>
+      <div class="counter-l">days and counting</div>
     </div>
     <div class="stats">
-      <div><b id="sy">–</b><span class="meta">years</span></div>
-      <div><b id="sm">–</b><span class="meta">months</span></div>
-      <div><b id="sw">–</b><span class="meta">weeks</span></div>
-      <div><b id="sn">–</b><span class="meta">next anniversary in (days)</span></div>
+      <div><b id="s-years">–</b><span class="meta">years</span></div>
+      <div><b id="s-months">–</b><span class="meta">months</span></div>
+      <div><b id="s-weeks">–</b><span class="meta">weeks</span></div>
     </div>
-    <div class="row" style="margin-top:20px">
-      <span class="meta">Our day:</span>
-      <input type="date" id="since" style="width:auto">
-      <button class="btn ghost" id="saveSince">Save</button>
-    </div>
-    <h2>Today’s mood</h2>
-    <div class="row moods" id="moodBtns"></div>
-    <div id="moodList" class="meta" style="margin-top:12px"></div>
+    <p class="meta" id="since-line"></p>
+    <h2>Today’s mood <button class="link-btn" id="moodClear" type="button" style="margin-left:8px;font-size:13px">clear</button></h2>
+    <div class="row moods" id="mood-buttons"></div>
+    <div id="mood-list" class="meta"></div>
   </section>
 
-  <footer>Made for two</footer>
+  <footer class="foot">Made for two</footer>
 </div>
 
-<script>
-(function(){
-  var me = "";
-  try { me = localStorage.getItem("me") || ""; } catch(e){}
-  var db=null, assets=null, ready=false, since="", about={};
-  var $=function(id){return document.getElementById(id);};
-  var PAGES=["home","about","gallery","requests","together"];
-  var MOODS=["😊","🥰","😴","😟","😤","🤒"];
-  var today=new Date().toISOString().slice(0,10);
-  function slug(s){return (s||"x").replace(/[^a-zA-Z0-9]/g,"")||"x";}
-  function fmt(t){try{return new Date(t).toLocaleDateString([], {month:"short",day:"numeric",year:"numeric"});}catch(e){return "";}}
-  function setWho(){ $("who").textContent = me ? "Hello, "+me : "Welcome"; }
-  setWho();
-  function askName(){
-    if(me) return true;
-    var n=(prompt("What’s your name?")||"").trim();
-    if(!n) return false;
-    me=n.slice(0,30);
-    try{localStorage.setItem("me",me);}catch(e){}
-    setWho(); return true;
-  }
-  function warn(m){var w=$("warn");w.textContent=m;w.classList.remove("hidden");}
-
-  // routing
-  function route(){
-    var p=(location.hash||"#home").slice(1);
-    if(PAGES.indexOf(p)<0) p="home";
-    PAGES.forEach(function(s){$(s).classList.toggle("hidden",s!==p);});
-    document.querySelectorAll("#nav a").forEach(function(a){a.classList.toggle("on",a.dataset.p===p);});
-    window.scrollTo(0,0);
-  }
-  window.addEventListener("hashchange",route); route();
-
-  function mkPhoto(m,canDel){
-    var f=document.createElement("figure"); f.className="ph";
-    if(m.assetId){var im=document.createElement("img");im.loading="lazy";im.alt="";im.src="/_blob/"+m.assetId;f.appendChild(im);}
-    var c=document.createElement("figcaption");
-    c.textContent=(m.caption?m.caption+" — ":"")+(m.author||"Someone")+", "+fmt(m.at);
-    if(canDel&&m.author===me){
-      var d=document.createElement("button");d.textContent="delete";
-      d.onclick=function(){if(confirm("Delete this photo?"))db.collection("moments").doc(m.id).delete();};
-      c.appendChild(d);
-    }
-    f.appendChild(c); return f;
-  }
-  function renderMoments(list){
-    var g=$("mlist"),h=$("latest"); g.textContent="";h.textContent="";
-    if(!list.length){
-      [g,h].forEach(function(b){var e=document.createElement("div");e.className="empty";e.textContent="No photos yet. Add the first one in Gallery.";b.appendChild(e);});
-      return;
-    }
-    list.forEach(function(m){g.appendChild(mkPhoto(m,true));});
-    list.slice(0,3).forEach(function(m){h.appendChild(mkPhoto(m,false));});
-  }
-  function renderTasks(list){
-    var box=$("tlist");box.textContent="";
-    if(!list.length){var e=document.createElement("div");e.className="empty";e.textContent="No requests yet.";box.appendChild(e);return;}
-    list.forEach(function(t){
-      var c=document.createElement("div");c.className="task"+(t.done?" done":"");
-      var b=document.createElement("button");b.className="chk";b.textContent=t.done?"✓":"";b.title="Mark done";
-      b.onclick=function(){
-        if(!askName())return;
-        var nd=!t.done;
-        db.collection("tasks").doc(t.id).update({done:nd,doneBy:nd?me:"",doneAt:nd?Date.now():0});
-      };
-      var w=document.createElement("div");w.style.flex="1";
-      var tx=document.createElement("div");tx.className="t";tx.textContent=t.text;
-      var mt=document.createElement("div");mt.className="meta";
-      mt.textContent="From "+(t.from||"someone")+", "+fmt(t.at)+(t.done?" · done by "+(t.doneBy||"?")+" ✓":"");
-      w.appendChild(tx);w.appendChild(mt);
-      if(t.from===me){
-        var d=document.createElement("button");d.style.cssText="background:none;border:0;cursor:pointer;color:var(--mute);padding:0;font-size:12px;text-decoration:underline";d.textContent="remove";
-        d.onclick=function(){db.collection("tasks").doc(t.id).delete();};w.appendChild(d);
-      }
-      c.appendChild(b);c.appendChild(w);box.appendChild(c);
-    });
-  }
-  function renderMoods(list){
-    var box=$("moodList");box.textContent="";
-    list.forEach(function(m){var d=document.createElement("div");d.textContent=m.name+" feels "+m.mood+" today";box.appendChild(d);});
-  }
-  function renderPeople(){
-    var box=$("people");box.textContent="";
-    ["a","b"].forEach(function(k,i){
-      var p=about[k]||{};
-      var c=document.createElement("div");c.className="person";
-      var h=document.createElement("h3");h.textContent=p.name||("Person "+(i+1));
-      var b=document.createElement("p");b.style.cssText="color:var(--mute);white-space:pre-wrap";b.textContent=p.bio||"Tap edit to write something about yourself.";
-      var e=document.createElement("button");e.className="btn ghost";e.textContent="Edit";
-      e.onclick=function(){
-        if(!ready)return;
-        c.textContent="";
-        var n=document.createElement("input");n.type="text";n.placeholder="Name";n.value=p.name||"";
-        var t=document.createElement("textarea");t.rows=5;t.placeholder="A few words about you…";t.value=p.bio||"";t.style.marginTop="8px";
-        var s=document.createElement("button");s.className="btn";s.textContent="Save";
-        var r=document.createElement("div");r.className="row";r.appendChild(s);
-        s.onclick=function(){var d={};d[k]={name:n.value.trim().slice(0,40),bio:t.value.trim().slice(0,600)};db.doc("meta/about").set(Object.assign({},about,d));};
-        c.appendChild(n);c.appendChild(t);c.appendChild(r);
-      };
-      c.appendChild(h);c.appendChild(b);c.appendChild(e);box.appendChild(c);
-    });
-    var a=about.a&&about.a.name,b2=about.b&&about.b.name;
-    $("title").textContent=(a&&b2)?(a+" & "+b2):"Our Little World";
-  }
-  function renderDays(){
-    if(!since){["days1","days2","sy","sm","sw","sn"].forEach(function(i){$(i).textContent="–";});return;}
-    var s=new Date(since+"T00:00:00"),now=new Date();
-    var n=Math.max(Math.floor((now-s)/864e5),0);
-    $("days1").textContent=$("days2").textContent=n.toLocaleString();
-    var y=now.getFullYear()-s.getFullYear(),m=now.getMonth()-s.getMonth();
-    if(now.getDate()<s.getDate())m--; if(m<0){y--;m+=12;}
-    $("sy").textContent=Math.max(y,0);
-    $("sm").textContent=Math.max(y,0)*12+m;
-    $("sw").textContent=Math.floor(n/7).toLocaleString();
-    var nx=new Date(now.getFullYear(),s.getMonth(),s.getDate());
-    if(nx<new Date(now.getFullYear(),now.getMonth(),now.getDate()))nx.setFullYear(nx.getFullYear()+1);
-    $("sn").textContent=Math.ceil((nx-now)/864e5);
-    $("since").value=since;
-  }
-
-  MOODS.forEach(function(m){
-    var b=document.createElement("button");b.textContent=m;
-    b.onclick=function(){if(!ready||!askName())return;db.collection("moods").doc(today+"_"+slug(me)).set({name:me,mood:m,day:today});};
-    $("moodBtns").appendChild(b);
-  });
-
-  $("pick").onclick=function(){
-    if(!askName())return;
-    if(!assets){warn("Photo upload needs Contributor access. Ask the owner to invite you.");return;}
-    $("file").click();
-  };
-  $("file").onchange=async function(){
-    var files=Array.prototype.slice.call(this.files);this.value="";
-    var cap=$("cap").value.trim();
-    for(var i=0;i<files.length;i++){
-      $("upmsg").textContent="Uploading "+(i+1)+"/"+files.length+"…";
-      try{
-        var r=await assets.upload(files[i]);
-        await db.collection("moments").doc().set({author:me,caption:i===0?cap:"",assetId:r.id,at:Date.now()});
-      }catch(e){warn("Upload failed: "+((e&&e.message)||"try a smaller photo"));}
-    }
-    $("cap").value="";$("upmsg").textContent="";
-  };
-  $("tadd").onclick=async function(){
-    var v=$("ttext").value.trim();if(!v||!ready||!askName())return;
-    await db.collection("tasks").doc().set({text:v,from:me,done:false,doneBy:"",at:Date.now(),doneAt:0});
-    $("ttext").value="";
-  };
-  $("saveSince").onclick=function(){var v=$("since").value;if(v&&ready)db.doc("meta/us").set({since:v});};
-
-  var timer=setTimeout(function(){if(!ready){warn("Can’t connect yet. Open this page signed in, and make sure you’ve been invited as a Contributor.");$("latest").textContent="";}},10000);
-  Promise.all([claude.use("db"),claude.use("assets")]).then(function(r){
-    db=r[0];assets=r[1];
-    if(!db)return;
-    ready=true;clearTimeout(timer);$("warn").classList.add("hidden");
-    db.collection("moments").orderBy("at","desc").limit(200).onSnapshot(function(s){
-      renderMoments(s.docs.map(function(d){var x=d.data();x.id=d.id;return x;}));
-    },function(){warn("Couldn’t load photos.");});
-    db.collection("tasks").orderBy("at","desc").limit(200).onSnapshot(function(s){
-      var l=s.docs.map(function(d){var x=d.data();x.id=d.id;return x;});
-      l.sort(function(a,b){return (a.done?1:0)-(b.done?1:0)||b.at-a.at;});
-      renderTasks(l);
-    });
-    db.collection("moods").where("day","==",today).onSnapshot(function(s){renderMoods(s.docs.map(function(d){return d.data();}));});
-    db.doc("meta/us").onSnapshot(function(s){since=s.exists?((s.data()||{}).since||""):"";renderDays();});
-    db.doc("meta/about").onSnapshot(function(s){about=s.exists?(s.data()||{}):{};renderPeople();});
-  }).catch(function(){warn("Couldn’t connect.");});
-  renderPeople();
-})();
-</script>
+<script type="module" src="assets/js/script.js"></script>
 </body>
 </html>
