@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="A quiet place for two.">
+<meta name="description" content="A quiet place for us.">
 <meta name="theme-color" content="#F2EEDD" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1E2A21" media="(prefers-color-scheme: dark)">
 <title>Us — Our Space</title>
@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Nunito:wght@400;600;800&family=Patrick+Hand&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/motion.css">
 </head>
 <body>
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
@@ -50,6 +51,15 @@
 
   <section id="home">
     <div class="hero">
+      <svg class="doodle" viewBox="0 0 250 110" aria-hidden="true"><defs><clipPath id="ledge"><rect width="250" height="100"/></clipPath></defs>
+  <g clip-path="url(#ledge)"><g transform="translate(2 0) scale(1)" style="--d:0s"><g class="nuzzle-cat left"><path class="bc" d="M50 46C47 41 40 34 36 33C32 32 29 36 29 41C28 46 25 49 23 53C15 62 14 76 18 88C22 101 36 110 60 110C84 110 98 101 102 88C106 76 105 62 97 53C95 49 92 46 91 41C91 36 88 32 84 33C80 34 73 41 70 46C64 42 56 42 50 46Z"/>
+    <g class="blink"><circle class="bc-eye" cx="45" cy="74" r="3.2"/><circle class="bc-eye" cx="75" cy="74" r="3.2"/></g>
+    <path class="bc-mouth" d="M54 80q3 4 6 0q3 4 6 0"/></g></g><g transform="translate(128 6.6000000000000085) scale(0.94)" style="--d:0.3s"><g class="nuzzle-cat right"><path class="bc" d="M50 46C47 41 40 34 36 33C32 32 29 36 29 41C28 46 25 49 23 53C15 62 14 76 18 88C22 101 36 110 60 110C84 110 98 101 102 88C106 76 105 62 97 53C95 49 92 46 91 41C91 36 88 32 84 33C80 34 73 41 70 46C64 42 56 42 50 46Z"/>
+    <g class="blink"><circle class="bc-eye" cx="45" cy="74" r="3.2"/><circle class="bc-eye" cx="75" cy="74" r="3.2"/></g>
+    <path class="bc-mouth" d="M54 80q3 4 6 0q3 4 6 0"/></g></g></g>
+  <path class="ledge" d="M0 100H250"/>
+  <path class="heart-f" d="M126 14c-4-6-12-2-7 5l7 7 7-7c5-7-3-11-7-5z"/>
+</svg>
       <p class="hello" id="hello">Welcome</p>
       <h1 id="title">Our Space</h1>
       <p class="lead">A quiet place for two. Photos, small promises, and every day we’ve shared.</p>
@@ -142,5 +152,6 @@
 <footer class="foot">Made for Us</footer>
 
 <script type="module" src="assets/js/script.js"></script>
+<script src="assets/js/motion.js" defer></script>
 </body>
 </html>
