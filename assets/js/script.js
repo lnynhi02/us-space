@@ -609,7 +609,7 @@ $("upload").onclick = async () => {
       const photo = await store.uploadPhoto(item.file);
       await store.add("moments", {
         author: selfKey,
-        caption: uploaded === 0 ? caption : "",
+        caption,
         url: photo.url,
         path: photo.path,
         day,
