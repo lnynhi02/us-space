@@ -160,6 +160,7 @@ const MOOD_NAMES = ["happy", "loved", "tired", "worried", "annoyed", "sick"];
 const PAGES = ["home", "about", "gallery", "notes", "together"];
 let selfKey = null;
 let allMoments = [], hangouts = [], calDay = null;
+let photoPage = 1, lastPhotoPageSize = 0;
 const calMonth = new Date(); calMonth.setDate(1);
 localStorage.removeItem("person");
 
@@ -252,7 +253,9 @@ function photoCard(m, canDelete) {
   const f = el("figure", { className: "photo" });
   f.appendChild(el("img", { src: m.url, alt: m.caption || "Photo", loading: "lazy" }));
   const c = el("figcaption");
-  if (m.caption) c.appendChild(el("div", { className: "photo-caption" }, m.caption));
+  const cap = el("div", { className: "photo-caption" }, m.caption || "");
+  if (m.caption) cap.title = m.caption;
+  c.appendChild(cap);
   c.appendChild(el("div", { className: "photo-date" }, fmtDate(m.day ? dayDate(m.day) : m.at)));
   c.appendChild(el("div", { className: "photo-who" }, displayName(m.author)));
   if (canDelete && selfKey && m.author === selfKey) {
@@ -262,21 +265,50 @@ function photoCard(m, canDelete) {
       try { await store.remove("moments", m.id); reloadPhotos(); }
       catch (e) { notice(e.message || "Couldn't delete photo."); }
     };
-    const line = el("div"); line.appendChild(d); c.appendChild(line);
+    const line = el("div", { className: "photo-actions" }); line.appendChild(d); c.appendChild(line);
   }
   f.appendChild(c);
   return f;
 }
-async function loadPhotos() {
-  const list = await store.list("moments");
-  allMoments = list; renderCalendar(); renderDay();
-  const all = $("photos");
-  all.textContent = "";
-  if (!list.length) {
+function photoPageSize() {
+  if (window.matchMedia("(max-width: 520px)").matches) return 10;
+  if (window.matchMedia("(max-width: 1200px)").matches) return 12;
+  return 16;
+}
+function renderPhotoPager(pages) {
+  const box = $("photo-pager"); box.textContent = "";
+  if (pages <= 1) { box.hidden = true; return; }
+  box.hidden = false;
+  for (let p = 1; p <= pages; p++) {
+    const b = el("button", { type: "button", className: p === photoPage ? "on" : "" }, String(p));
+    b.setAttribute("aria-label", "Photo page " + p);
+    if (p === photoPage) b.setAttribute("aria-current", "page");
+    b.onclick = () => {
+      if (photoPage === p) return;
+      photoPage = p;
+      renderPhotos();
+    };
+    box.appendChild(b);
+  }
+}
+function renderPhotos() {
+  const all = $("photos"); all.textContent = "";
+  const size = photoPageSize();
+  lastPhotoPageSize = size;
+  if (!allMoments.length) {
     all.appendChild(el("p", { className: "empty" }, "No photos yet. Add your first one."));
+    $("photo-pager").hidden = true;
     return;
   }
-  list.forEach(m => all.appendChild(photoCard(m, true)));
+  const pages = Math.ceil(allMoments.length / size);
+  if (photoPage > pages) photoPage = pages;
+  const start = (photoPage - 1) * size;
+  allMoments.slice(start, start + size).forEach(m => all.appendChild(photoCard(m, true)));
+  renderPhotoPager(pages);
+}
+async function loadPhotos() {
+  const list = await store.list("moments");
+  allMoments = list; renderCalendar(); renderDay(); renderPhotos();
 }
 
 /* ===================================================
@@ -683,6 +715,13 @@ function startApp() {
   if (started) return;
   started = true;
   window.addEventListener("hashchange", route);
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (photoPageSize() !== lastPhotoPageSize) { photoPage = 1; renderPhotos(); }
+    }, 150);
+  });
   calDay = dateKey(new Date()); $("photo-day").value = calDay;
   route(); buildMoodButtons();
   tick(); setInterval(tick, 1000);
