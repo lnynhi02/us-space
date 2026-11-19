@@ -293,6 +293,21 @@ function setGalleryTab(name) {
   $("gpanel-photos").hidden = !photos;
   $("gpanel-cal").hidden = photos;
 }
+// Calendar marks: birthdays every year, and our anniversary once each year's date has passed.
+const BIRTHDAYS = [
+  { month: 8, day: 15, name: "Nhi" },   // 15/08
+  { month: 10, day: 20, name: "Dun" }   // 20/10
+];
+function specialDay(key) {
+  const [y, m, d] = key.split("-").map(Number), out = [];
+  BIRTHDAYS.forEach(b => { if (b.month === m && b.day === d) out.push({ icon: "🎂🥳", label: b.name + "'s birthday" }); });
+  const s = startDate(); // our first day, 23/10
+  if (m === s.getMonth() + 1 && d === s.getDate() && y >= s.getFullYear() && key <= dateKey(new Date())) {
+    const yrs = y - s.getFullYear();
+    out.push({ icon: "💞", label: yrs === 0 ? "Our first day" : yrs + (yrs === 1 ? " year" : " years") + " together" });
+  }
+  return out;
+}
 function renderCalendar() {
   const y = calMonth.getFullYear(), mo = calMonth.getMonth();
   $("cal-title").textContent = calMonth.toLocaleDateString([], { month: "long", year: "numeric" });
@@ -309,10 +324,12 @@ function renderCalendar() {
     const on = hang.has(key); if (on) count++;
     const b = el("button", { type: "button", className: "cal-day" + (on ? " hang" : "") + (key === today ? " today" : "") + (key === calDay ? " sel" : "") });
     b.appendChild(el("span", {}, String(d)));
+    const sp = specialDay(key);
+    if (sp.length) { b.appendChild(el("span", { className: "cal-mark", "aria-hidden": "true" }, sp.map(x => x.icon).join(""))); b.title = sp.map(x => x.label).join(", "); }
     if (on) b.appendChild(el("span", { className: "cal-heart" }, "♥"));
     else if (photoDays.has(key)) b.appendChild(el("span", { className: "cal-dot" }));
     b.setAttribute("aria-pressed", String(key === calDay));
-    b.setAttribute("aria-label", dayDate(key).toLocaleDateString([], { month: "long", day: "numeric" }) + (on ? ", we hung out" : "") + (photoDays.has(key) ? ", has photos" : ""));
+    b.setAttribute("aria-label", dayDate(key).toLocaleDateString([], { month: "long", day: "numeric" }) + (on ? ", we hung out" : "") + (photoDays.has(key) ? ", has photos" : "") + (sp.length ? ", " + sp.map(x => x.label).join(", ") : ""));
     b.onclick = () => { calDay = key; renderCalendar(); renderDay(); };
     grid.appendChild(b);
   }
@@ -322,6 +339,7 @@ function renderDay() {
   const box = $("cal-day"); box.textContent = "";
   if (!calDay) return;
   box.appendChild(el("h3", { className: "cal-day-title" }, dayDate(calDay).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" })));
+  specialDay(calDay).forEach(x => box.appendChild(el("p", { className: "lead" }, x.icon + " " + x.label)));
   const h = hangouts.find(x => x.day === calDay);
   const row = el("div", { className: "row" });
   const mark = el("button", { className: h ? "btn ghost" : "btn", type: "button" }, h ? "♥ We hung out (tap to undo)" : "♥ Mark as hangout day");
