@@ -167,6 +167,7 @@ localStorage.removeItem("person");
 function dateKey(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
 function dayDate(key) { const [y, m, d] = key.split("-").map(Number); return new Date(y, m - 1, d); }
 function momentDay(m) { return m.day || dateKey(new Date(m.at)); } // old photos have no day: use the upload date
+function momentDayTime(m) { return dayDate(momentDay(m)).getTime(); }
 function fmtDate(t) {
   return new Date(t).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 }
@@ -308,7 +309,8 @@ function renderPhotos() {
 }
 async function loadPhotos() {
   const list = await store.list("moments");
-  allMoments = list; renderCalendar(); renderDay(); renderPhotos();
+  allMoments = list.slice().sort((a, b) => momentDayTime(b) - momentDayTime(a) || (b.at || 0) - (a.at || 0));
+  renderCalendar(); renderDay(); renderPhotos();
 }
 
 /* ===================================================
