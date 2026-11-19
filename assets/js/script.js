@@ -634,6 +634,15 @@ $("task-add").onclick = async () => {
   } catch (e) { notice(e.message || "Couldn't add to-do."); }
 };
 $("task-text").addEventListener("keydown", e => { if (e.key === "Enter") $("task-add").click(); });
+$("msg-add").onclick = async () => {
+  const text = $("msg-text").value.trim();
+  if (!text || !requireIdentity()) return;
+  try {
+    await store.add("tasks", { text, kind: "message", from: selfKey, done: false, doneBy: "", at: Date.now() });
+    $("msg-text").value = "";
+    reloadTasks();
+  } catch (e) { notice(e.message || "Couldn't send message."); }
+};
 $("bucket-add").onclick = async () => {
   const text = $("bucket-text").value.trim();
   if (!text || !requireIdentity()) return;
@@ -644,15 +653,6 @@ $("bucket-add").onclick = async () => {
   } catch (e) { notice(e.message || "Couldn't add to bucket list."); }
 };
 $("bucket-text").addEventListener("keydown", e => { if (e.key === "Enter") $("bucket-add").click(); });
-$("msg-add").onclick = async () => {
-  const text = $("msg-text").value.trim();
-  if (!text || !requireIdentity()) return;
-  try {
-    await store.add("tasks", { text, kind: "message", from: selfKey, done: false, doneBy: "", at: Date.now() });
-    $("msg-text").value = "";
-    reloadTasks();
-  } catch (e) { notice(e.message || "Couldn't send message."); }
-};
 $("msg-text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("msg-add").click(); });
 $("gtab-photos").onclick = () => setGalleryTab("photos");
 $("gtab-cal").onclick = () => setGalleryTab("cal");
