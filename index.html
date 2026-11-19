@@ -122,6 +122,7 @@
     <div class="tabs" role="tablist" aria-label="Type of note">
       <button class="tab on" id="tab-todo" role="tab" aria-selected="true" aria-controls="panel-todo" type="button">To-do</button>
       <button class="tab" id="tab-msg" role="tab" aria-selected="false" aria-controls="panel-msg" type="button">Messages</button>
+      <button class="tab" id="tab-bucket" role="tab" aria-selected="false" aria-controls="panel-bucket" type="button">Bucket list</button>
     </div>
     <div id="panel-todo" role="tabpanel" aria-labelledby="tab-todo">
       <input type="text" id="task-text" maxlength="200" aria-label="Write a to-do" placeholder="Something to do, e.g. “Eat three proper meals”">
@@ -132,6 +133,11 @@
       <textarea id="msg-text" rows="3" maxlength="600" aria-label="Write a message" placeholder="Something to share, e.g. “I was thinking about you today”"></textarea>
       <div class="row"><button class="btn" id="msg-add" type="button">Send message</button><span class="meta">Ctrl + Enter to send</span></div>
       <div id="messages"></div>
+    </div>
+    <div id="panel-bucket" role="tabpanel" aria-labelledby="tab-bucket" hidden>
+      <input type="text" id="bucket-text" maxlength="200" aria-label="Add to our bucket list" placeholder="Something we dream of, e.g. “Watch the sunrise together”">
+      <div class="row"><button class="btn" id="bucket-add" type="button">Add to bucket list</button><span class="meta" id="bucket-progress" role="status"></span></div>
+      <div id="bucket"></div>
     </div>
   </section>
 

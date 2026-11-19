@@ -347,20 +347,22 @@ function renderDay() {
 /* ===================================================
    7) NOTES
    =================================================== */
-const noteKind = t => (t.kind === "message" ? "message" : t.kind === "doc" ? "doc" : "todo"); // old notes have no kind: they are to-dos
+const noteKind = t => (t.kind === "message" ? "message" : t.kind === "bucket" ? "bucket" : t.kind === "doc" ? "doc" : "todo"); // old notes have no kind: they are to-dos
 function setNoteTab(name) {
-  const todo = name !== "message";
-  $("tab-todo").classList.toggle("on", todo);
-  $("tab-msg").classList.toggle("on", !todo);
-  $("tab-todo").setAttribute("aria-selected", String(todo));
-  $("tab-msg").setAttribute("aria-selected", String(!todo));
-  $("panel-todo").hidden = !todo;
-  $("panel-msg").hidden = todo;
+  const tabs = { todo: "todo", message: "msg", bucket: "bucket" };
+  if (!tabs[name]) name = "todo";
+  Object.entries(tabs).forEach(([k, id]) => {
+    const on = k === name;
+    $("tab-" + id).classList.toggle("on", on);
+    $("tab-" + id).setAttribute("aria-selected", String(on));
+    $("panel-" + id).hidden = !on;
+  });
 }
 async function loadTasks() {
   const all = await store.list("tasks");
   renderTodos(all.filter(t => noteKind(t) === "todo").sort((a, b) => (!!a.done - !!b.done) || (b.at - a.at)));
   renderMessages(all.filter(t => noteKind(t) === "message").sort((a, b) => b.at - a.at));
+  renderBucket(all.filter(t => noteKind(t) === "bucket").sort((a, b) => (!!a.done - !!b.done) || (b.at - a.at)));
 }
 function renderTodos(list) {
   const box = $("tasks"); box.textContent = "";
@@ -386,6 +388,38 @@ function renderTodos(list) {
       d.onclick = async () => {
         try { await store.remove("tasks", t.id); reloadTasks(); }
         catch (e) { notice(e.message || "Couldn't remove to-do."); }
+      };
+      body.appendChild(d);
+    }
+    row.append(chk, body);
+    box.appendChild(row);
+  });
+}
+// Bucket list: same table as to-dos (kind "bucket"). Done items stay as memories.
+function renderBucket(list) {
+  const box = $("bucket"), prog = $("bucket-progress"); box.textContent = "";
+  const done = list.filter(t => t.done).length;
+  prog.textContent = list.length ? done + " of " + list.length + " done" : "";
+  if (!list.length) { box.appendChild(el("p", { className: "empty" }, "Nothing here yet. Dream a little.")); return; }
+  list.forEach(t => {
+    const row = el("div", { className: "task bucket" + (t.done ? " done" : "") });
+    const chk = el("button", { className: "check", type: "button", title: "We did it" }, t.done ? "✓" : "");
+    chk.setAttribute("aria-pressed", String(!!t.done));
+    chk.onclick = async () => {
+      if (!requireIdentity()) return;
+      try { await store.update("tasks", t.id, { done: !t.done, doneBy: t.done ? "" : selfKey }); reloadTasks(); }
+      catch (e) { notice(e.message || "Couldn't update bucket list."); }
+    };
+    const body = el("div", { className: "task-body" });
+    body.appendChild(el("div", { className: "task-text" }, t.text));
+    body.appendChild(el("div", { className: "meta" },
+      displayName(t.from) + "'s wish - " + fmtDate(t.at) + (t.done ? " ✓" : "")));
+    if (selfKey && t.from === selfKey) {
+      const d = el("button", { className: "link-btn", type: "button" }, "remove");
+      d.style.paddingLeft = "0";
+      d.onclick = async () => {
+        try { await store.remove("tasks", t.id); reloadTasks(); }
+        catch (e) { notice(e.message || "Couldn't remove item."); }
       };
       body.appendChild(d);
     }
@@ -582,6 +616,16 @@ $("task-add").onclick = async () => {
   } catch (e) { notice(e.message || "Couldn't add to-do."); }
 };
 $("task-text").addEventListener("keydown", e => { if (e.key === "Enter") $("task-add").click(); });
+$("bucket-add").onclick = async () => {
+  const text = $("bucket-text").value.trim();
+  if (!text || !requireIdentity()) return;
+  try {
+    await store.add("tasks", { text, kind: "bucket", from: selfKey, done: false, doneBy: "", at: Date.now() });
+    $("bucket-text").value = "";
+    reloadTasks();
+  } catch (e) { notice(e.message || "Couldn't add to bucket list."); }
+};
+$("bucket-text").addEventListener("keydown", e => { if (e.key === "Enter") $("bucket-add").click(); });
 $("msg-add").onclick = async () => {
   const text = $("msg-text").value.trim();
   if (!text || !requireIdentity()) return;
@@ -598,6 +642,7 @@ $("cal-prev").onclick = () => { calMonth.setMonth(calMonth.getMonth() - 1); rend
 $("cal-next").onclick = () => { calMonth.setMonth(calMonth.getMonth() + 1); renderCalendar(); };
 $("tab-todo").onclick = () => setNoteTab("todo");
 $("tab-msg").onclick = () => setNoteTab("message");
+$("tab-bucket").onclick = () => setNoteTab("bucket");
 $("moodClear").onclick = async () => {
   const today = dateKey(new Date());
   const list = await store.list("moods");

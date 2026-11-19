@@ -157,6 +157,9 @@ input[type="text"], textarea {
 .task.done .task-text { text-decoration: line-through; color: var(--mute); }
 .task-body { flex: 1; }
 
+/* Bucket list */
+#bucket { margin-top: 28px; display: grid; gap: 14px; }
+
 /* About */
 .people { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 28px; }
 .person { background: var(--soft); border-radius: 24px; padding: 22px; }
