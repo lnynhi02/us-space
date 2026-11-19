@@ -157,7 +157,7 @@ const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
 const MOODS = ["😊", "🥰", "😴", "😟", "😤", "🤒"];
 const MOOD_NAMES = ["happy", "loved", "tired", "worried", "annoyed", "sick"];
-const PAGES = ["home", "about", "gallery", "requests", "together"];
+const PAGES = ["home", "about", "gallery", "notes", "together"];
 let selfKey = null;
 let allMoments = [], hangouts = [], calDay = null;
 const calMonth = new Date(); calMonth.setDate(1);
