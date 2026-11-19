@@ -290,6 +290,7 @@ input[type="date"] { width: auto; min-width: 200px; padding: 10px 16px; border: 
 .cal-day-title { font: 400 26px var(--serif); margin: 22px 0 10px; }
 @media (min-width: 1201px) {
   #messages:has(.msg) { width: min(1200px, calc(100vw - 40px)); margin-left: 50%; transform: translateX(-50%); }
+  #photos:has(.photo) { width: min(1100px, calc(100vw - 40px)); margin-left: 50%; transform: translateX(-50%); grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 1200px) {
   #messages { grid-template-columns: repeat(3, minmax(0, 1fr)); }
