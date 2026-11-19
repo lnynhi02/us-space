@@ -300,11 +300,11 @@ const BIRTHDAYS = [
 ];
 function specialDay(key) {
   const [y, m, d] = key.split("-").map(Number), out = [];
-  BIRTHDAYS.forEach(b => { if (b.month === m && b.day === d) out.push({ icon: "🎂🥳", label: b.name + "'s birthday" }); });
+  BIRTHDAYS.forEach(b => { if (b.month === m && b.day === d) out.push({ kind: "birthday", icon: "🎂🥳", label: b.name + "'s birthday" }); });
   const s = startDate(); // our first day, 23/10
   if (m === s.getMonth() + 1 && d === s.getDate() && y >= s.getFullYear() && key <= dateKey(new Date())) {
     const yrs = y - s.getFullYear();
-    out.push({ icon: "💞", label: yrs === 0 ? "Our first day" : yrs + (yrs === 1 ? " year" : " years") + " together" });
+    out.push({ kind: "anni", icon: "💞", label: yrs === 0 ? "Our first day" : yrs + (yrs === 1 ? " year" : " years") + " together" });
   }
   return out;
 }
@@ -322,9 +322,16 @@ function renderCalendar() {
   for (let d = 1; d <= n; d++) {
     const key = y + "-" + pad(mo + 1) + "-" + pad(d);
     const on = hang.has(key); if (on) count++;
-    const b = el("button", { type: "button", className: "cal-day" + (on ? " hang" : "") + (key === today ? " today" : "") + (key === calDay ? " sel" : "") });
-    b.appendChild(el("span", {}, String(d)));
     const sp = specialDay(key);
+    const kinds = new Set(sp.map(x => x.kind));
+    const cls = ["cal-day"];
+    if (on) cls.push("hang");
+    if (kinds.has("birthday")) cls.push("birthday");
+    if (kinds.has("anni")) cls.push("anni");
+    if (key === today) cls.push("today");
+    if (key === calDay) cls.push("sel");
+    const b = el("button", { type: "button", className: cls.join(" ") });
+    b.appendChild(el("span", {}, String(d)));
     if (sp.length) { b.appendChild(el("span", { className: "cal-mark", "aria-hidden": "true" }, sp.map(x => x.icon).join(""))); b.title = sp.map(x => x.label).join(", "); }
     if (on) b.appendChild(el("span", { className: "cal-heart" }, "♥"));
     else if (photoDays.has(key)) b.appendChild(el("span", { className: "cal-dot" }));
