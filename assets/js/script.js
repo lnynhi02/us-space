@@ -252,8 +252,9 @@ function photoCard(m, canDelete) {
   const f = el("figure", { className: "photo" });
   f.appendChild(el("img", { src: m.url, alt: m.caption || "Photo", loading: "lazy" }));
   const c = el("figcaption");
-  c.appendChild(el("div", {}, (m.caption ? m.caption + " — " : "") + displayName(m.author)));
-  c.appendChild(el("div", {}, fmtDate(m.day ? dayDate(m.day) : m.at)));
+  if (m.caption) c.appendChild(el("div", { className: "photo-caption" }, m.caption));
+  c.appendChild(el("div", { className: "photo-date" }, fmtDate(m.day ? dayDate(m.day) : m.at)));
+  c.appendChild(el("div", { className: "photo-who" }, displayName(m.author)));
   if (canDelete && selfKey && m.author === selfKey) {
     const d = el("button", { className: "link-btn", type: "button" }, "delete");
     d.onclick = async () => {
