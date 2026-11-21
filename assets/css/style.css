@@ -258,6 +258,10 @@ nav a[aria-current="page"] { background: var(--accent); color: var(--accent-ink)
   content: ""; position: absolute; top: 46px; left: 14px; right: 14px;
   border-top: 1px dashed var(--line);
 }
+@media (prefers-color-scheme: dark) {
+  .msg::before { border-color: #72876F; }
+  .msg::after { border-top-color: #72876F; }
+}
 #messages > :nth-child(odd) { transform: rotate(-1.2deg); }
 #messages > :nth-child(even) { transform: rotate(1deg); }
 #messages > :hover { transform: rotate(0) translateY(-2px); }
