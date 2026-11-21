@@ -171,6 +171,9 @@ function momentDayTime(m) { return dayDate(momentDay(m)).getTime(); }
 function fmtDate(t) {
   return new Date(t).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" });
 }
+function fmtDateTime(t) {
+  return fmtDate(t) + " · " + new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 function notice(msg) { const n = $("notice"); n.textContent = msg; n.hidden = !msg; }
 async function sha256(text) {
   const bytes = new TextEncoder().encode(text);
@@ -494,7 +497,7 @@ function renderMessages(list) {
     const card = el("div", { className: "msg" });
     card.appendChild(el("div", { className: "msg-text" }, m.text));
     const foot = el("div", { className: "msg-foot" });
-    foot.appendChild(el("span", { className: "meta" }, displayName(m.from) + " - " + fmtDate(m.at)));
+    foot.appendChild(el("span", { className: "meta" }, displayName(m.from) + " - " + fmtDateTime(m.at)));
     const mine = !!selfKey && m.from === selfKey;
     if (selfKey && !mine) {
       const h = el("button", { className: "heart" + (m.done ? " on" : ""), type: "button", title: m.done ? "Remove heart" : "I read this" }, "♥");
