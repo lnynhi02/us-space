@@ -44,15 +44,15 @@ section:not([hidden]) { animation: rise .35s ease both; }
 .nuzzle-cat.right { animation-name: lean-right; }
 @keyframes lean-left {
   0%, 10%, 100% { transform: translateX(0) rotate(0deg); }
-  30%, 90% { transform: translateX(17px) rotate(7deg); }
-  42%, 66% { transform: translateX(15px) rotate(5deg); }
-  54%, 78% { transform: translateX(19px) rotate(8deg); }
+  30%, 90% { transform: translateX(3px) rotate(7deg); }
+  42%, 66% { transform: translateX(2px) rotate(5deg); }
+  54%, 78% { transform: translateX(4px) rotate(8deg); }
 }
 @keyframes lean-right {
   0%, 10%, 100% { transform: translateX(0) rotate(0deg); }
-  30%, 90% { transform: translateX(-17px) rotate(-7deg); }
-  42%, 66% { transform: translateX(-15px) rotate(-5deg); }
-  54%, 78% { transform: translateX(-19px) rotate(-8deg); }
+  30%, 90% { transform: translateX(-3px) rotate(-7deg); }
+  42%, 66% { transform: translateX(-2px) rotate(-5deg); }
+  54%, 78% { transform: translateX(-4px) rotate(-8deg); }
 }
 @media (max-width: 520px) { .doodle { width: 150px; } }
 /* Pops */
