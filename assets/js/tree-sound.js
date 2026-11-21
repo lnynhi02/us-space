@@ -14,10 +14,10 @@
   if (!svg || !card || !AC) return;
 
   const FILES = Object.assign({
-    spring: "assets/tree-sound/spring.mp3",
-    summer: "assets/tree-sound/summer.mp3",
-    autumn: "assets/tree-sound/autumn.mp3",
-    winter: "assets/tree-sound/winter.mp3"
+    spring: new URL("../tree-sound/spring.mp3", import.meta.url).href,
+    summer: new URL("../tree-sound/summer.mp3", import.meta.url).href,
+    autumn: new URL("../tree-sound/autumn.mp3", import.meta.url).href,
+    winter: new URL("../tree-sound/winter.mp3", import.meta.url).href
   }, window.TREE_SOUND_SRC || {});
   const NAMES = { spring: "Spring", summer: "Summer", autumn: "Autumn", winter: "Winter" };
   const K_ON = "us-tree-sound", K_VOL = "us-tree-vol";
